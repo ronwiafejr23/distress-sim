@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Engine test</title></head>
+<body style="font-family: monospace">
+  <h3>Engine test (Ron)</h3>
+  <button onclick="Engine.applyAction('good')">Right step</button>
+  <button onclick="Engine.applyAction('bad')">Wrong step</button>
+  <button onclick="Engine.askMissionControl()">Ask Mission Control</button>
+  <pre id="out"></pre>
+
+  <!-- A tiny copy of Abby's data so you can test before data.js exists. -->
+  <script>
+    window.SIGNALS = [
+      { key: 'hr',     label: 'Heart rate',       unit: 'bpm',  min: 30, max: 220 },
+      { key: 'br',     label: 'Breathing rate',   unit: '/min', min: 4,  max: 60 },
+      { key: 'spo2',   label: 'Blood oxygen',     unit: '%',    min: 60, max: 100 },
+      { key: 'temp',   label: 'Skin temperature', unit: 'C',    min: 28, max: 41 },
+      { key: 'stress', label: 'Stress score',     unit: '/100', min: 0,  max: 100 }
+    ];
+    window.CREW = [{ id: 'test', name: 'Test Astronaut', role: 'Test', baseline: {
+      hr: { mean: 62, sd: 5 }, br: { mean: 14, sd: 1.5 }, spo2: { mean: 98, sd: 0.8 },
+      temp: { mean: 33.5, sd: 0.4 }, stress: { mean: 20, sd: 6 } } }];
+    window.SCENARIOS = [{
+      id: 'mini', name: 'Mini test', calm: 5, timeLimit: 60, recoverySeconds: 8,
+      phases: [
+        { name: 'onset',      seconds: 5, shift: { hr: 15, stress: 10 } },
+        { name: 'escalation', seconds: 5, shift: { hr: 40, stress: 40 } },
+        { name: 'peak',       seconds: 5, shift: { hr: 55, stress: 60 } }
+      ],
+      actions: [
+        { id: 'good', label: 'Right step', effect: 'right' },
+        { id: 'bad',  label: 'Wrong step', effect: 'wrong' }
+      ],
+      hint: 'Mission Control: test answer.'
+    }];
+  </script>
+  <script src="engine.js"></script>
+  <script>
+    const out = document.getElementById('out');
+    function show(line) { out.textContent = line + '\n' + out.textContent; }
+    Engine.on('tick', function (r) {
+      show(r.t + 's  ' + r.phase.padEnd(10) + JSON.stringify(r.values));
+    });
+    Engine.on('reply', function (r) { show('REPLY: ' + r.text); });
+    Engine.on('end', function (info) { show('END: ' + JSON.stringify(info)); });
+    Engine.start({ crewId: 'test', scenarioId: 'mini', earthDelay: true, delaySeconds: 6 });
+  </script>
+</body>
+</html>
