@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crew Health Distress Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <!-- Our own mission patch: a rocket inside a hexagon. -->
+      <svg class="emblem" viewBox="0 0 64 64" aria-hidden="true">
+        <polygon points="32,3 60,18 60,46 32,61 4,46 4,18" fill="#0b0f1a" stroke="#46d3ff" stroke-width="2"/>
+        <circle cx="32" cy="40" r="15" fill="none" stroke="#8a96ad" stroke-dasharray="3 3"/>
+        <path d="M32 11 C38 19 39 30 37 40 H27 C25 30 26 19 32 11 Z" fill="#e8eef9"/>
+        <path d="M27 33 L20 44 H27 Z M37 33 L44 44 H37 Z" fill="#ff4d4d"/>
+        <circle cx="32" cy="25" r="3" fill="#46d3ff"/>
+        <path d="M29 41 L32 52 L35 41 Z" fill="#ffd21f"/>
+      </svg>
+      <div>
+        <h1>CREW HEALTH <span>DISTRESS SIMULATOR</span></h1>
+        <div class="ship-name">DSV MERIDIAN / MEDICAL BAY CONSOLE</div>
+      </div>
+      <span class="sim-label">SIMULATED DATA</span>
+    </div>
+    <div class="controls">
+      <label for="crewSelect">Crew member <select id="crewSelect"></select></label>
+      <label for="scenarioSelect">Scenario <select id="scenarioSelect"></select></label>
+      <label for="delayToggle" class="check">
+        <input type="checkbox" id="delayToggle" checked> Earth delay
+      </label>
+      <button id="startBtn" class="primary">Start run</button>
+      <button id="stopBtn" disabled>Stop</button>
+    </div>
+  </header>
+
+  <!-- The flight path: our ship travelling from Earth to Mars. -->
+  <div class="transit">
+    <span class="planet earth"></span><span class="place">EARTH</span>
+    <div class="lane">
+      <svg class="ship" viewBox="0 0 90 30" aria-hidden="true">
+        <rect x="2" y="9" width="22" height="12" fill="#2b6cff" stroke="#e8eef9"/>
+        <rect x="66" y="9" width="22" height="12" fill="#2b6cff" stroke="#e8eef9"/>
+        <line x1="24" y1="15" x2="66" y2="15" stroke="#e8eef9" stroke-width="2"/>
+        <rect x="32" y="6" width="22" height="18" rx="4" fill="#e8eef9"/>
+        <path d="M54 6 L64 15 L54 24 Z" fill="#ff4d4d"/>
+        <circle cx="43" cy="15" r="4" fill="#0b0f1a" stroke="#46d3ff"/>
+      </svg>
+    </div>
+    <span class="place">MARS</span><span class="planet mars"></span>
+    <span id="linkLabel" class="link">EARTH LINK: DELAYED</span>
+  </div>
+
+  <!-- The alert banner stays on screen on every page. Clicking it opens the alert page. -->
+  <a id="alertBanner" class="banner level-idle" href="#alert">
+    <strong id="alertLevel">STANDBY</strong>
+    <span id="alertDetail">Pick a crew member and a scenario, then press Start run.</span>
+    <span id="clock" class="clock">T+0s</span>
+  </a>
+
+  <!-- ui.js draws the board and every detail page inside this one element. -->
+  <main id="view"></main>
+
+  <!-- Scripts load top to bottom. The order matters. -->
+  <script src="fake-parts.js"></script>
+  <script src="ui.js"></script>
+</body>
+</html>
