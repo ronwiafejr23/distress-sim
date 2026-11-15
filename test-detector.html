@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Detector test</title></head>
+<body style="font-family: monospace">
+  <h3>Detector test (Ade)</h3>
+  <p>Type a heart rate and a blood oxygen value, then press Send reading.</p>
+  Heart rate <input id="hr" value="62" size="4">
+  Blood oxygen <input id="spo2" value="98" size="4">
+  <button id="send">Send reading</button>
+  <pre id="out"></pre>
+
+  <script src="detector.js"></script>
+  <script>
+    // One fake crew member and scenario, shaped exactly like Abby's data.
+    const crew = { id: 'test', name: 'Test Astronaut', role: 'Test', baseline: {
+      hr: { mean: 62, sd: 5 }, br: { mean: 14, sd: 1.5 }, spo2: { mean: 98, sd: 0.8 },
+      temp: { mean: 33.5, sd: 0.4 }, stress: { mean: 20, sd: 6 } } };
+    const scenario = { id: 'mini', name: 'Mini test', actions: [
+      { id: 'good', label: 'Right step', effect: 'right' },
+      { id: 'bad',  label: 'Wrong step', effect: 'wrong' } ] };
+
+    Detector.reset(crew, scenario);
+    let t = 0;
+    document.getElementById('send').addEventListener('click', function () {
+      t += 1;
+      // A hand-made reading, shaped exactly like the ones Ron's engine sends.
+      const reading = { t: t, crewId: 'test', phase: t > 3 ? 'onset' : 'baseline',
+        values: { hr: Number(document.getElementById('hr').value), br: 14,
+                  spo2: Number(document.getElementById('spo2').value),
+                  temp: 33.5, stress: 20 } };
+      const result = Detector.update(reading);
+      const out = document.getElementById('out');
+      out.textContent = t + 's  ' + result.level.toUpperCase() + '  ' +
+        JSON.stringify(result.scores) + '\n' + out.textContent;
+    });
+  </script>
+</body>
+</html>
