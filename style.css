@@ -1,0 +1,223 @@
+/* style.css  (Kenya) */
+:root {
+  /* layout: mission bar and flight path on top, then a kanban board of cards;
+     each card opens its own page */
+  --bg: #04050a;        /* deep space black */
+  --panel: #0b0f1a;     /* card and column surface */
+  --line: #1d2638;      /* borders */
+  --text: #e8eef9;      /* hull white */
+  --muted: #8a96ad;
+  --accent: #46d3ff;    /* hologram blue: links, chart lines, buttons */
+  --ok: #33d17a;
+  --watch: #ffd21f;
+  --caution: #ff8a1f;
+  --emergency: #ff4d4d;
+  --display: 'Orbitron', 'Trebuchet MS', sans-serif;
+  --body: 'Exo 2', system-ui, Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; padding: 16px; min-height: 100%;
+  font-family: var(--body); color: var(--text);
+  background-color: var(--bg);
+  /* stars, plus the glow of a planet below the page */
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #ffffff88 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 9%, #ffffff66 50%, transparent 51%),
+    radial-gradient(2px 2px at 41% 32%, #ffffff55 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 54%, #ffffff66 50%, transparent 51%),
+    radial-gradient(1px 1px at 23% 68%, #ffffff44 50%, transparent 51%),
+    radial-gradient(2px 2px at 64% 82%, #ffffff44 50%, transparent 51%),
+    radial-gradient(120% 40% at 50% 115%, #12306b 0%, transparent 70%);
+  background-attachment: fixed;
+}
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, .col-title, .banner strong, .hero { font-family: var(--display); }
+h1 { font-size: 1.05rem; margin: 0; letter-spacing: 2px; }
+h1 span { color: var(--accent); }
+h2 { font-size: 1.1rem; margin: 0 0 4px; letter-spacing: 1px; text-wrap: balance; }
+h3 { font-size: 0.8rem; margin: 18px 0 8px; letter-spacing: 2px; color: var(--muted); }
+p { max-width: 65ch; line-height: 1.5; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Mission bar */
+.top {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  justify-content: space-between; align-items: end;
+}
+.brand { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.emblem { width: 52px; height: 52px; flex: none; }
+.ship-name { font-size: 0.7rem; letter-spacing: 2px; color: var(--muted); margin-top: 4px; }
+.sim-label {
+  border: 1px solid var(--watch); color: var(--watch); padding: 3px 10px;
+  border-radius: 999px; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px;
+}
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.controls label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 0.75rem; color: var(--muted);
+}
+.controls label.check {
+  flex-direction: row; align-items: center; gap: 6px; padding-bottom: 9px;
+}
+select, button {
+  font: inherit; color: var(--text); padding: 8px 12px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--panel);
+}
+button { cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: 0.4; cursor: default; }
+button.primary {
+  background: var(--accent); border-color: var(--accent); color: #03131c; font-weight: 600;
+}
+
+/* Flight path: Earth, the ship, Mars */
+.transit {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 14px; padding: 8px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: #070a12;
+  font-size: 0.68rem; letter-spacing: 2px; color: var(--muted);
+}
+.planet { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+.planet.earth { background: radial-gradient(circle at 35% 35%, #7fd4ff, #1f5fd1 55%, #0b2a6b); }
+.planet.mars { background: radial-gradient(circle at 35% 35%, #ffb089, #c4502a 55%, #5e1f0f); }
+.lane {
+  flex: 1; min-width: 140px; height: 32px; position: relative;
+  background: linear-gradient(var(--line), var(--line)) center / 100% 1px no-repeat;
+}
+.ship { position: absolute; top: 2px; left: 0; width: 84px; animation: cruise 40s linear infinite; }
+@keyframes cruise { from { left: 0; } to { left: calc(100% - 84px); } }
+.link { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .ship { animation: none; left: 45%; } }
+
+/* Alert banner: the level is always written in words as well as colour */
+.banner {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+  border: 1px solid var(--line); border-left-width: 6px; background: var(--panel);
+}
+.banner strong { font-size: 1.05rem; letter-spacing: 2px; }
+.banner .clock { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.level-idle      { border-left-color: var(--muted); }
+.level-normal    { border-left-color: var(--ok); }
+.level-normal strong { color: var(--ok); }
+.level-watch     { border-color: var(--watch); }
+.level-watch strong { color: var(--watch); }
+.level-caution   { border-color: var(--caution); }
+.level-caution strong { color: var(--caution); }
+.level-emergency { border-color: var(--emergency); background: #2a0b0d; }
+.level-emergency strong { color: var(--emergency); }
+
+/* The board: kanban columns of cards */
+.board {
+  display: grid; gap: 14px; margin-top: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+.column {
+  background: #070a12cc; border: 1px solid var(--line);
+  border-top: 2px solid var(--accent); border-radius: 10px; padding: 10px;
+}
+.col-head {
+  display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 10px;
+}
+.col-title { font-size: 0.72rem; letter-spacing: 2px; color: var(--accent); }
+.col-count {
+  font-size: 0.72rem; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px;
+}
+.cards { display: flex; flex-direction: column; gap: 10px; }
+.card {
+  display: block; background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--muted); border-radius: 8px; padding: 12px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.card.is-normal    { border-left-color: var(--ok); }
+.card.is-watch     { border-left-color: var(--watch); }
+.card.is-caution   { border-left-color: var(--caution); }
+.card.is-emergency { border-left-color: var(--emergency); }
+.card-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.card-title {
+  font-size: 0.78rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase;
+}
+.card-main { font-size: 1.05rem; font-weight: 600; margin-top: 6px; }
+.card-sub { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+.card-open { font-size: 0.72rem; color: var(--accent); margin-top: 8px; letter-spacing: 1px; }
+.big {
+  font-family: var(--display); font-size: 1.6rem; margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.big small { font-family: var(--body); font-size: 0.8rem; color: var(--muted); }
+.chip {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; white-space: nowrap;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line);
+}
+.chip.is-normal    { color: var(--ok); border-color: var(--ok); }
+.chip.is-watch     { color: var(--watch); border-color: var(--watch); }
+.chip.is-caution   { color: var(--caution); border-color: var(--caution); }
+.chip.is-emergency { color: #fff; background: var(--emergency); border-color: var(--emergency); }
+.spark { margin-top: 6px; }
+/* Charts never catch clicks, so a click always lands on the card itself. */
+.spark svg, #pg-chart svg { display: block; width: 100%; height: auto; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+
+/* Detail pages */
+.page {
+  margin-top: 14px; background: var(--panel); border: 1px solid var(--line);
+  border-top: 2px solid var(--accent); border-radius: 10px; padding: 16px;
+}
+.back {
+  display: inline-block; color: var(--accent);
+  font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 12px;
+}
+.page-head {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: space-between; align-items: center;
+}
+.hero { font-size: 2.4rem; margin: 6px 0; font-variant-numeric: tabular-nums; }
+.hero small { font-family: var(--body); font-size: 1rem; color: var(--muted); }
+.hero.is-normal { color: var(--ok); }
+.hero.is-watch { color: var(--watch); }
+.hero.is-caution { color: var(--caution); }
+.hero.is-emergency { color: var(--emergency); }
+.facts {
+  display: grid; gap: 10px; margin-top: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.fact { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.fact span {
+  display: block; font-size: 0.72rem; color: var(--muted);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.fact b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse; font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+th {
+  color: var(--muted); font-weight: 600; font-size: 0.75rem;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+td.off { color: var(--watch); font-weight: 600; }
+tr.me td { color: var(--accent); }
+.log { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.log li { border-left: 3px solid var(--line); padding: 2px 10px; }
+.steps { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.steps button { text-align: left; padding: 12px; }
+.steps button.done { text-decoration: line-through; border-style: dashed; }
+.locked {
+  border: 1px dashed var(--line); border-radius: 8px; padding: 14px; color: var(--muted);
+}
+.outcome { font-family: var(--display); font-size: 1.2rem; }
+.outcome.good { color: var(--ok); }
+.outcome.bad { color: var(--emergency); }
+.tag {
+  padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 600;
+  border: 1px solid var(--line);
+}
+.tag.right { color: var(--ok); border-color: var(--ok); }
+.tag.wrong { color: var(--emergency); border-color: var(--emergency); }
