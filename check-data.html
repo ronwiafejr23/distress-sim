@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Check</title>
+    <style>
+      body {
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Data Check</h1>
+      <pre id="out"></pre>
+    </main>
+
+    <script src="data.js"></script>
+    <script>
+      const lines = [];
+      let failures = 0;
+
+      const keys = SIGNALS.map(function (signal) {
+        return signal.key;
+      });
+      const EFFECTS = ['right', 'wrong', 'neutral'];
+
+      function check(ok, message) {
+        if (!ok) {
+          failures += 1;
+        }
+        lines.push((ok ? 'PASS ' : 'FAIL ') + message);
+      }
+
+      // Every crew member needs a baseline for every signal.
+      CREW.forEach(function (crewMember) {
+        check(
+          !!crewMember.id && !!crewMember.name && !!crewMember.role,
+          'crew "' + crewMember.id + '" has id, name and role'
+        );
+
+        keys.forEach(function (key) {
+          const baseline = crewMember.baseline && crewMember.baseline[key];
+          check(
+            baseline && typeof baseline.mean === 'number' && baseline.sd > 0,
+            'crew "' + crewMember.id + '" has mean and sd for ' + key
+          );
+        });
+      });
+
+      // Every scenario needs the fields used by the engine and detector.
+      SCENARIOS.forEach(function (scenario) {
+        const tag = 'scenario "' + scenario.id + '" ';
+        check(
+          !!scenario.id && !!scenario.name && !!scenario.hint,
+          tag + 'has id, name and hint'
+        );
+        check(
+          scenario.calm > 0 && scenario.timeLimit > 0 && scenario.recoverySeconds > 0,
+          tag + 'has calm, timeLimit and recoverySeconds'
+        );
+        check(
+          Array.isArray(scenario.phases) && scenario.phases.length > 0,
+          tag + 'has phases'
+        );
+
+        let total = scenario.calm;
+        (scenario.phases || []).forEach(function (phase) {
+          total += phase.seconds;
+          check(
+            !!phase.name && phase.seconds > 0,
+            tag + 'phase "' + phase.name + '" has name and seconds'
+          );
+
+          Object.keys(phase.shift || {}).forEach(function (key) {
+            check(
+              keys.indexOf(key) !== -1,
+              tag + 'phase "' + phase.name + '" shift key "' + key + '" is a real signal'
+            );
+          });
+        });
+        check(
+          total + 20 <= scenario.timeLimit,
+          tag + 'leaves 20+ seconds to respond after the peak'
+        );
+
+        const ids = [];
+        let right = 0;
+        (scenario.actions || []).forEach(function (action) {
+          check(
+            !!action.id && !!action.label,
+            tag + 'action "' + action.id + '" has id and label'
+          );
+          check(
+            EFFECTS.indexOf(action.effect) !== -1,
+            tag + 'action "' + action.id + '" effect is valid'
+          );
+          check(
+            ids.indexOf(action.id) === -1,
+            tag + 'action id "' + action.id + '" is not repeated'
+          );
+
+          ids.push(action.id);
+          if (action.effect === 'right') {
+            right += 1;
+          }
+        });
+        check(right >= 1, tag + 'has at least one right action');
+      });
+
+      // Preview peak scores for each scenario and crew member.
+      lines.push('');
+      lines.push('PREVIEW - biggest score at the peak (2 = Watch, 3 = Emergency)');
+      SCENARIOS.forEach(function (scenario) {
+        const peak = scenario.phases[scenario.phases.length - 1].shift;
+
+        CREW.forEach(function (crewMember) {
+          const parts = Object.keys(peak).map(function (key) {
+            return key + ' ' + (peak[key] / crewMember.baseline[key].sd).toFixed(1);
+          });
+
+          lines.push(
+            '  ' + scenario.id.padEnd(8) + crewMember.id.padEnd(11) + parts.join('  ')
+          );
+        });
+      });
+
+      lines.unshift(
+        failures === 0 ? 'ALL CHECKS PASSED' : failures + ' CHECK(S) FAILED',
+        ''
+      );
+      document.getElementById('out').textContent = lines.join('\n');
+    </script>
+  </body>
+</html>
