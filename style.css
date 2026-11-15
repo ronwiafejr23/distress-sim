@@ -128,6 +128,18 @@ button.primary {
   border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px;
 }
 .cards { display: flex; flex-direction: column; gap: 10px; }
+
+/* Wide screens: the vital signs column is twice as wide and holds its cards
+   two across, so all three columns end at the same height. */
+@media (min-width: 1000px) {
+  .board { grid-template-columns: 1fr 2fr 1fr; }
+  .column { display: flex; flex-direction: column; }
+  .column .cards { flex: 1; }
+  .column .card { flex: 1; display: flex; flex-direction: column; }
+  .column .card-open { margin-top: auto; padding-top: 8px; }
+  .column:nth-child(2) .cards { display: grid; grid-template-columns: 1fr 1fr; }
+  .column:nth-child(2) .card:last-child { grid-column: 1 / -1; }
+}
 .card {
   display: block; background: var(--panel); border: 1px solid var(--line);
   border-left: 4px solid var(--muted); border-radius: 8px; padding: 12px;
@@ -221,3 +233,24 @@ tr.me td { color: var(--accent); }
 }
 .tag.right { color: var(--ok); border-color: var(--ok); }
 .tag.wrong { color: var(--emergency); border-color: var(--emergency); }
+
+/* Health assistant */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.chips button { font-size: 0.82rem; padding: 6px 10px; border-radius: 999px; }
+.chat {
+  display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #070a12;
+}
+.msg {
+  display: flex; flex-direction: column; gap: 2px; max-width: 80ch;
+  padding: 8px 10px; border-radius: 8px;
+}
+.msg b { font-size: 0.7rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+.msg.you { align-self: flex-end; background: #102a3a; border: 1px solid #1e4b66; }
+.msg.assistant { align-self: flex-start; background: var(--panel); border: 1px solid var(--line); }
+.ask-row { display: flex; gap: 8px; margin-top: 10px; }
+.ask-row input {
+  flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

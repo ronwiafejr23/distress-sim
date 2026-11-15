@@ -11,6 +11,7 @@
   const pages = {};        // every screen lives here: pages.board, pages.crew, ...
   let current = 'board';   // the screen being shown
   let state = null;        // everything the screens show
+  const chat = [];         // the health assistant conversation
 
   function el(id) { return document.getElementById(id); }
   function set(id, text) { const node = el(id); if (node) { node.textContent = text; } }
@@ -149,8 +150,9 @@
           '</small></div><div class="spark" id="spark-' + sig.key + '"></div>');
       });
       return '<div class="board">' +
-        column('CREW AND COMMS', 2, card('crew', 'crew', 'Crew member') +
-          card('mission', 'mission', 'Mission Control')) +
+        column('CREW AND COMMS', 3, card('crew', 'crew', 'Crew member') +
+          card('mission', 'mission', 'Mission Control') +
+          card('assistant', 'assistant', 'Health assistant')) +
         column('MED BAY: VITAL SIGNS', window.SIGNALS.length, vitals) +
         column('FLIGHT DECK: RESPONSE', 3, card('alert', 'alert', 'Alert status') +
           card('actions', 'actions', 'Action guide') + card('debrief', 'debrief', 'Debrief')) +
@@ -166,6 +168,12 @@
       set('main-mission', missionText());
       set('sub-mission', 'Earth delay is ' + (el('delayToggle').checked ? 'ON' : 'OFF'));
       set('chip-mission', state.mission.status.toUpperCase());
+      // Health assistant card
+      const last = chat.length ? chat[chat.length - 1] : null;
+      set('main-assistant', 'Ask a health question');
+      set('sub-assistant', last ? last.text.slice(0, 90) + (last.text.length > 90 ? '...' : '')
+        : 'Basic health and distress facts, onboard and offline');
+      set('chip-assistant', 'ONBOARD');
       // One card per vital sign
       window.SIGNALS.forEach(function (sig) {
         const key = sig.key;
@@ -174,7 +182,10 @@
         setClass('chip-' + key, 'chip is-' + statusOf(key));
         setClass('card-' + key, 'card is-' + statusOf(key));
         set('sub-' + key, 'Normal ' + bandText(key) + ' ' + sig.unit);
-        el('spark-' + key).innerHTML = chartSvg(key, 260, 54, false);
+        // Draw the small chart at the card's real width so a wide card keeps
+        // the same height as the others.
+        const spark = el('spark-' + key);
+        spark.innerHTML = chartSvg(key, Math.max(200, spark.clientWidth || 260), 54, false);
       });
       // Response cards
       set('main-alert', state.running || state.reading ? LEVEL_TEXT[lvl] : 'STANDBY');
@@ -369,6 +380,68 @@
       }
       if (state.mission.status === 'answered') { text = state.mission.text; }
       set('ms-text', text);
+    }
+  };
+
+  // ---- The health assistant page ----
+  // Builds what the assistant needs to know about this moment.
+  function assistantContext() {
+    return { crew: state.crew, reading: state.reading, result: state.result,
+             delayOn: el('delayToggle').checked };
+  }
+
+  function ask(question) {
+    question = question.trim();
+    if (!question) { return; }
+    let reply = 'The health assistant is not loaded. Check that assistant.js is in index.html.';
+    if (window.Assistant) { reply = window.Assistant.answer(question, assistantContext()).text; }
+    chat.push({ who: 'you', text: question });
+    chat.push({ who: 'assistant', text: reply });
+    if (chat.length > 40) { chat.splice(0, 2); }
+    if (current === 'assistant') { pages.assistant.update(); }
+  }
+
+  pages.assistant = {
+    build: function () {
+      let chips = '';
+      const list = window.Assistant ? window.Assistant.suggestions : [];
+      list.forEach(function (q) {
+        chips += '<button type="button" data-q="' + q + '">' + q + '</button>';
+      });
+      return '<div class="page">' + BACK + '<h2>Health assistant</h2>' +
+        '<p>Ask basic health and distress questions. It runs onboard with no internet, so it ' +
+        'still answers when Earth is out of reach. General information for a simulator, not ' +
+        'medical advice.</p><div class="chips" id="chips">' + chips + '</div>' +
+        '<div class="chat" id="chatLog"></div>' +
+        '<form class="ask-row" id="askForm"><label class="sr" for="askInput">Your question</label>' +
+        '<input id="askInput" autocomplete="off" placeholder="Type a question, for example: ' +
+        'is my heart rate okay?"><button class="primary" type="submit">Ask</button></form></div>';
+    },
+    bind: function () {
+      el('chips').addEventListener('click', function (event) {
+        const button = event.target.closest('button');
+        if (button) { ask(button.dataset.q); }
+      });
+      el('askForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        ask(el('askInput').value);
+        el('askInput').value = '';
+        el('askInput').focus();
+      });
+    },
+    update: function () {
+      const log = el('chatLog');
+      if (log.childElementCount === chat.length && chat.length > 0) { return; }
+      let html = '';
+      chat.forEach(function (m) {
+        const safe = m.text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+        html += '<div class="msg ' + m.who + '"><b>' + (m.who === 'you' ? 'You' : 'Assistant') +
+          '</b><span>' + safe + '</span></div>';
+      });
+      log.innerHTML = html || '<div class="msg assistant"><b>Assistant</b><span>Ask me about ' +
+        'heart rate, breathing, oxygen, CO2, panic, heat, sleep, or how you are doing right ' +
+        'now.</span></div>';
+      log.scrollTop = log.scrollHeight;
     }
   };
 
