@@ -36,7 +36,7 @@
   let updateResponse = function () {};
   let checkReply = function () {};
   let checkEnd = function () {};
-})();
+
   // ---- STEP 2: start, stop and the once-a-second tick ----
   Engine.start = function (options) {
     Engine.stop();
@@ -208,3 +208,4 @@
       emit('reply', { t: run.t, text: run.scenario.hint });
     }
   };
+})();
