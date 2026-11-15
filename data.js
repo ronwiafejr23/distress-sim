@@ -3,7 +3,7 @@ window.SIGNALS = [
     {key: 'br', label: 'Breathing Rate', unit: '/min', min: 4, max: 60},
     {key: 'spo2', label: 'Blood Oxygen', unit: '%', min: 60, max: 100},
     {key: 'temp', label: 'Skin Temperature', unit: 'C', min: 28, max: 41},
-    {key: 'bp', label: 'Blood Pressure', unit: '/100', min: 0, max: 100},
+    {key: 'stress', label: 'Blood Pressure', unit: '/100', min: 0, max: 100},
 ];
 
 window.CREW = [
@@ -44,7 +44,7 @@ window.CREW = [
 window.SCENARIOS = [
     {
         id: 'panic', name: 'Panic during spacewalk', 
-        calm: 8, timeline: 90, recoverySeconds: 20,
+        calm: 8, timeLimit: 90, recoverySeconds: 20,
         phases: [
             { name: 'onset', seconds: 6, shift: {hr: 14, br: 4, stress: 10 }},
             { name: 'escalation', seconds: 8, shift: {hr: 40, br: 10, stress: 45 }},
@@ -55,12 +55,12 @@ window.SCENARIOS = [
         { id: 'pause', label: 'Pause the task', effect: 'right'},
         { id: 'breathe', label: 'Start guided breathing', effect: 'right'},
         { id: 'buddy', label: 'Buddy check-in over the radio', effect: 'right'},
-        { id: 'rush', label: 'keep up to finish the task sooner', effect: 'wrong'},
-        { id: 'ignore', label: 'keep working and recheck in 10 mintutes', effect: 'wrong'},
+        { id: 'rush', label: 'Speed up to finish the task sooner', effect: 'wrong'},
+        { id: 'ignore', label: 'keep working and recheck in 10 minutes', effect: 'wrong'},
         { id: 'log', label: 'Write the event in the mission log', effect: 'neutral'},
         ],
 
-        hint: 'Mission Control: thuis looks like acute stress. Pause the task, ' +
+        hint: 'Mission Control: this looks like acute stress. Pause the task, ' +
           'start guided breathing and get a buddy check-in.'
     }
 ];
